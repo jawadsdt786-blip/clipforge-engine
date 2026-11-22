@@ -1,0 +1,26 @@
+CLIPFORGE V2 — 2 SIMPLE KAAM
+=========================
+
+A) APNE COMPUTER PAR VIDEO CLIPPING CHALAYEN
+1. Python 3.11+ install karein (Add to PATH select karein).
+2. FFmpeg install karein, PATH mein add karein. Command Prompt par ffmpeg -version test karein.
+3. Complete ZIP extract karein.
+4. Folder ClipForge_v2 ke andar start_windows.bat double click karein.
+5. Browser mein http://127.0.0.1:8000/ open karein.
+6. Open studio par click karke apni video upload karein ya authorized YouTube link use karein.
+7. Clips generate honay ke baad MP4 download karein.
+
+B) GITHUB PAR NAYI WEBSITE + PRICING UPDATE KAREIN
+1. ZIP ke github-pages folder mein index.html Notepad mein open karein.
+2. Ctrl+A phir Ctrl+C se sara code copy karein.
+3. Link kholein: https://github.com/jawadsdt786-blip/clipforge/edit/main/index.html
+4. GitHub editor mein click; Ctrl+A aur Ctrl+V.
+5. Upper-right 'Commit changes...' aur dobara 'Commit changes' click karein.
+6. Website: https://jawadsdt786-blip.github.io/clipforge/
+7. Pricing page: https://jawadsdt786-blip.github.io/clipforge/#pricing
+
+IMPORTANT: GitHub Pages apne aap Python aur FFmpeg nahi chalata.
+ONLINE YouTube clipping ke liye alag, secure HTTPS video backend host karna zaroori hai.
+Project mein backend aur connection settings ka code included hai, lekin paid hosting,
+user login, subscriptions aur public launch security abhi set nahi hui.
+Paid pricing cards sirf demo hain — payment collect nahi hoti.

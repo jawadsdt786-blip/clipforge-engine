@@ -1,0 +1,31 @@
+ClipForge — Upload aur YouTube link se clips (Public Beta)
+
+IMPORTANT: GitHub Pages sirf design chalata hai. Python/FFmpeg ko cloud server par chalana hoga.
+
+STEP 1: ClipForge_Public_Beta.zip download karein, right-click -> Extract All.
+STEP 2: GitHub par new PUBLIC repository banayein, misal: clipforge-engine.
+STEP 3: Extracted ClipForge_public_beta folder ke ANDAR wali saari files (app.py, Dockerfile, requirements.txt, static folder, assets folder etc.) new repository mein upload karein. ZIP file ko directly upload NA karein.
+STEP 4: https://railway.com/ par account banayein -> New Project -> Deploy from GitHub Repo -> clipforge-engine select karein.
+STEP 5: Railway project mein Volume add karein. Mount path: /app/storage
+STEP 6: Railway Variables mein ye add karein:
+    CLIPFORGE_STORAGE_DIR=/app/storage
+    MAX_UPLOAD_MB=150
+    MAX_ACTIVE_JOBS=2
+    MAX_JOBS_HOURLY=8
+    PROJECT_TTL_HOURS=24
+    CLIPFORGE_CORS_ORIGINS=https://jawadsdt786-blip.github.io
+STEP 7: Networking -> Generate Domain. Jo https://....up.railway.app address mile, usko open karein.
+STEP 8: Address ke akhir mein /api/health lagayein. Agar ffmpeg true aur link_import true aayein, backend ready hai.
+STEP 9: Railway domain ke root URL par hi ClipForge full website khulegi. Aapke visitors upload ya YouTube link, dono use kar sakte hain. Unhein Engine Settings ki zaroorat nahi hogi.
+STEP 10: Pehle short apni MP4 video test karein. Phir apna allowed/public YouTube link test karein. Live/private/restricted videos fail ho sakti hain.
+
+Agar aap purane GitHub Pages par bhi button active karna chahte hain:
+  1. github-pages/index.html mein meta name="clipforge-backend" ki content value mein apna naya https Railway URL likhein.
+  2. Us HTML ka poora code copy karein aur https://github.com/jawadsdt786-blip/clipforge/edit/main/index.html par paste karke Commit changes karein.
+  3. GitHub Pages terms commercial SaaS/ecommerce hosting ki ijazat nahi deti; paid launch ke liye hosted app URL / custom domain use karein.
+
+Har video max 150 MB, max 60 minute; 5 clips / 45 sec each. Public beta limited hai. Clips ka access 24 ghante mein expire hota hai. Server storage cleanup kuch der baad hoti hai.
+
+Pricing page par Creator $5/month aur $50/year display hai magar PAYMENT abhi activated nahi hai.
+
+NOTE: Ye controlled beta hai, commercial-grade platform nahi. Paid launch se pehle login, billing, object storage, scaling, moderation, abuse prevention aur job queue required hain. Railway hosting paid ho sakti hai.

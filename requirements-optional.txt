@@ -1,0 +1,2 @@
+# Optional AI subtitles (Whisper model downloads on first use)
+faster-whisper>=1.0
