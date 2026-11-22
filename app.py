@@ -337,7 +337,13 @@ def homepage():
 
 @app.get("/api/health")
 def health():
-    return {"ok": bool(shutil.which("ffmpeg") and shutil.which("ffprobe")), "ffmpeg": bool(shutil.which("ffmpeg")), "link_import": bool(importlib.util.find_spec("yt_dlp")), "automatic_captions": bool(_has_whisper())}
+    # A JS runtime is needed by yt-dlp's modern YouTube extractor.
+    node_available = shutil.which("node") is not None
+    return {"ok": bool(shutil.which("ffmpeg") and shutil.which("ffprobe")),
+            "ffmpeg": bool(shutil.which("ffmpeg")),
+            "link_import": bool(importlib.util.find_spec("yt_dlp")),
+            "javascript_runtime": node_available,
+            "automatic_captions": bool(_has_whisper())}
 
 
 def _has_whisper() -> bool:
@@ -413,13 +419,32 @@ def download_from_url(pid: str, link: str) -> None:
         folder.mkdir(exist_ok=True)
         update_project(pid, status="importing", progress=3)
         command = [sys.executable, "-m", "yt_dlp", "--ignore-config", "--no-playlist",
-                   "--no-progress", "--no-warnings", "--socket-timeout", "30", "--retries", "2", "--max-filesize",
+                   "--no-progress", "--js-runtimes", "node", "--socket-timeout", "30", "--retries", "2", "--max-filesize",
                    f"{MAX_UPLOAD_BYTES // (1024*1024)}M", "--match-filters", "!is_live & duration <= 3600",
                    "--merge-output-format", "mp4", "-f", "bv*+ba/b",
                    "-o", str(folder / "source.%(ext)s"), link]
         result = run_cmd(command, timeout=900, check=False)
         if result.returncode:
-            raise RuntimeError("Import failed. The video may be live, private, restricted or blocked by YouTube. Try a regular public video you are authorized to use, or upload your own file.")
+            details = "\n".join((result.stderr or result.stdout or "").splitlines()[-12:])
+            # Avoid logging third-party URLs or their potentially sensitive query strings.
+            safe_details = re.sub(r"https?://[^\s]+", "[video URL]", details)
+            print(f"[clipforge] YouTube import failed for project {pid}; exit={result.returncode}; "
+                  f"yt-dlp output: {safe_details[:2500]}", flush=True)
+            error_text = details.lower()
+            if "sign in to confirm" in error_text or "not a bot" in error_text:
+                message = ("YouTube is requiring bot verification from this server. "
+                           "Try uploading a video you own directly; this cloud-host restriction may not be fixable with code alone.")
+            elif "javascript runtime" in error_text or "js runtime" in error_text or "node" in error_text and "not found" in error_text:
+                message = "YouTube import needs a supported JavaScript runtime. Rebuild the updated Dockerfile."
+            elif "does not pass filter" in error_text or "does not pass the filter" in error_text or "is_live" in error_text and "filter" in error_text:
+                message = "This video is live or over 60 minutes long; ClipForge's public beta accepts completed videos up to 60 minutes."
+            elif "private" in error_text or "members-only" in error_text or "unavailable" in error_text:
+                message = "The YouTube video is private, unavailable, or restricted to authenticated viewers. Try your own public video or upload an MP4."
+            elif "requested format is not available" in error_text or "no video formats found" in error_text:
+                message = "YouTube did not provide a downloadable format to this server. Try uploading your original video."
+            else:
+                message = "YouTube import failed. Check Railway Deploy Logs for the yt-dlp error, or upload your own MP4 video."
+            raise RuntimeError(message)
         file = next((p for p in folder.glob("source.*") if p.suffix.lower() in VIDEO_SUFFIXES), None)
         if not file or file.stat().st_size > MAX_UPLOAD_BYTES:
             raise RuntimeError("The imported video is missing, unsupported or too large")
